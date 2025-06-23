@@ -1,0 +1,1 @@
+# trendie-auto-blogger

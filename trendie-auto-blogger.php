@@ -69,7 +69,7 @@ class TrendieAutoBlogger {
     public function enqueue_admin_assets($hook) {
         if (strpos($hook, 'trendie-auto-blogger') !== false) {
             wp_enqueue_style('tab-admin-style', TAB_PLUGIN_URL . 'assets/css/admin-style.css', array(), TAB_VERSION);
-            wp_enqueue_script('tab-admin-script', TAB_PLUGIN_URL . 'assets/js/admin-script.js', array('jquery'), TAB_VERSION, true);
+            wp_enqueue_script('tab-admin-script', TAB_PLUGIN_URL . 'assets/js/admin-script.js', array('jquery', 'jquery-ui-tooltip'), TAB_VERSION, true);
             
             // Localize script for AJAX
             wp_localize_script('tab-admin-script', 'tab_ajax', array(

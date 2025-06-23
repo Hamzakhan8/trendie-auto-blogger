@@ -1,0 +1,283 @@
+/* Trendie Auto Blogger - FAQ Frontend Styles */
+
+.trendie-faqs-container {
+    max-width: 800px;
+    margin: 20px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.trendie-faqs-title {
+    color: #4e7465;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #c4d9ca;
+    padding-bottom: 10px;
+}
+
+.trendie-faqs-list {
+    margin-bottom: 20px;
+}
+
+.trendie-faq-item {
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.trendie-faq-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-color: #8db2a1;
+}
+
+.trendie-faq-trend {
+    background: linear-gradient(135deg, #4e7465, #8db2a1);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px 8px 0 0;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.trendie-trend-label {
+    opacity: 0.9;
+    margin-right: 8px;
+}
+
+.trendie-trend-title {
+    font-weight: 600;
+}
+
+.trendie-faq-question {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    transition: background-color 0.3s ease;
+    border-radius: 0 0 8px 8px;
+}
+
+.trendie-faq-question:hover {
+    background: #f8f9fa;
+}
+
+.trendie-faq-question h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #233735;
+    line-height: 1.4;
+    flex: 1;
+    padding-right: 12px;
+}
+
+.trendie-faq-toggle {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4e7465;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #c4d9ca;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.trendie-faq-item.active .trendie-faq-toggle {
+    transform: rotate(45deg);
+    background: #4e7465;
+    color: white;
+}
+
+.trendie-faq-answer {
+    background: #f8f9fa;
+    border-top: 1px solid #e1e5e9;
+    border-radius: 0 0 8px 8px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+.trendie-faq-answer-content {
+    padding: 20px;
+    color: #233735;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.trendie-faq-answer-content p {
+    margin: 0 0 12px 0;
+}
+
+.trendie-faq-answer-content p:last-child {
+    margin-bottom: 0;
+}
+
+.trendie-faq-meta {
+    padding: 12px 20px;
+    border-top: 1px solid #e1e5e9;
+    background: #ffffff;
+    text-align: right;
+}
+
+.trendie-faq-meta small {
+    color: #666;
+    font-size: 12px;
+}
+
+.trendie-faqs-pagination {
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid #e1e5e9;
+    margin-top: 20px;
+}
+
+.trendie-load-more-faqs {
+    background: linear-gradient(135deg, #4e7465, #8db2a1);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 12px;
+}
+
+.trendie-load-more-faqs:hover {
+    background: linear-gradient(135deg, #233735, #4e7465);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.trendie-load-more-faqs:active {
+    transform: translateY(0);
+}
+
+.trendie-load-more-faqs:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.trendie-faqs-count {
+    color: #666;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.trendie-faqs-empty {
+    text-align: center;
+    padding: 40px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e1e5e9;
+}
+
+.trendie-faqs-empty p {
+    color: #666;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Loading state */
+.trendie-faqs-loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.trendie-faqs-loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #4e7465;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .trendie-faqs-container {
+        margin: 15px 0;
+    }
+    
+    .trendie-faqs-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .trendie-faq-question {
+        padding: 12px 16px;
+    }
+    
+    .trendie-faq-question h4 {
+        font-size: 14px;
+    }
+    
+    .trendie-faq-answer-content {
+        padding: 16px;
+        font-size: 13px;
+    }
+    
+    .trendie-faq-trend {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+    
+    .trendie-load-more-faqs {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trendie-faq-question {
+        padding: 10px 12px;
+    }
+    
+    .trendie-faq-question h4 {
+        font-size: 13px;
+        padding-right: 8px;
+    }
+    
+    .trendie-faq-toggle {
+        width: 20px;
+        height: 20px;
+        font-size: 16px;
+    }
+    
+    .trendie-faq-answer-content {
+        padding: 12px;
+    }
+    
+    .trendie-faq-meta {
+        padding: 8px 12px;
+    }
+} 

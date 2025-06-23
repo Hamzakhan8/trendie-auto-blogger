@@ -1,0 +1,31 @@
+/* Trendie Auto Blogger Frontend Styles */
+/* Color Palette: #233735, #181d20, #c4d9ca, #8db2a1, #4e7465 */
+
+/* Any frontend styles would go here */
+/* Currently this plugin is admin-focused, but this file is included for future frontend features */
+
+.trendie-post-meta {
+    color: #4e7465;
+    font-size: 12px;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.trendie-post-source {
+    background-color: #c4d9ca;
+    padding: 10px;
+    border-left: 4px solid #4e7465;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.trendie-post-source a {
+    color: #233735;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.trendie-post-source a:hover {
+    color: #4e7465;
+    text-decoration: underline;
+} 

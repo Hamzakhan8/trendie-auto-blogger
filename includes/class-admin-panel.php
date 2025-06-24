@@ -198,7 +198,7 @@ class TAB_AdminPanel {
                                 <th scope="row"><?php _e('Google Trends RSS URL', 'trendie-auto-blogger'); ?></th>
                                 <td>
                                     <input type="url" id="tab_rss_url" name="tab_rss_url" 
-                                           value="<?php echo esc_attr(get_option('tab_rss_url', 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=US')); ?>" 
+                                           value="<?php echo esc_attr(get_option('tab_rss_url', 'https://trends.google.com/trending/rss?geo=US&hl=en-US')); ?>" 
                                            class="regular-text" />
                                     <p class="description">
                                         <?php _e('Google Trends RSS feed URL. Default is for US trending searches.', 'trendie-auto-blogger'); ?>

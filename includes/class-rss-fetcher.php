@@ -6,7 +6,7 @@ class TAB_RSSFetcher {
     private $filter_keywords;
     
     public function __construct() {
-        $this->rss_url = get_option('tab_rss_url', 'https://trends.google.com/trends/trendingsearches/daily/rss?geo=US');
+        $this->rss_url = get_option('tab_rss_url', 'https://trends.google.com/trending/rss?geo=US&hl=en-US');
         
         // Get filter keywords from options or use defaults
         $this->filter_keywords = $this->get_filter_keywords();
@@ -26,16 +26,30 @@ class TAB_RSSFetcher {
             return array_filter($keywords); // Remove empty values
         }
         
-        // Default keywords to filter trends - only process items containing these topics
+        // Default keywords to filter trends - expanded to include more topics for better coverage
         return array(
+            // Business & Finance
             'business', 'finance', 'financial', 'stock', 'stocks', 'market', 'markets', 
             'trading', 'investment', 'investing', 'investor', 'economy', 'economic',
+            'revenue', 'profit', 'earnings', 'nasdaq', 'dow jones', 'sp500', 'forex',
+            'banking', 'bank', 'payment', 'payments', 'ecommerce', 'IPO', 'merger', 'acquisition',
+            
+            // Technology & Innovation
             'AI', 'artificial intelligence', 'machine learning', 'crypto', 'cryptocurrency', 
             'bitcoin', 'blockchain', 'ethereum', 'technology', 'tech', 'startup', 
             'startups', 'entrepreneur', 'entrepreneurship', 'venture capital', 'VC',
-            'fintech', 'digital', 'innovation', 'software', 'SaaS', 'IPO', 'merger',
-            'acquisition', 'banking', 'bank', 'payment', 'payments', 'ecommerce',
-            'revenue', 'profit', 'earnings', 'nasdaq', 'dow jones', 'sp500', 'forex'
+            'fintech', 'digital', 'innovation', 'software', 'SaaS', 'app', 'platform',
+            
+            // Sports & Entertainment (popular on Google Trends)
+            'NBA', 'basketball', 'football', 'sports', 'athlete', 'team', 'player', 'game',
+            'entertainment', 'movie', 'film', 'TV', 'series', 'streaming', 'music', 'artist',
+            'celebrity', 'actor', 'actress', 'singer', 'Hollywood', 'Netflix', 'Disney',
+            
+            // Health & Science
+            'health', 'medical', 'healthcare', 'science', 'research', 'study', 'breakthrough',
+            
+            // News & Politics
+            'news', 'politics', 'election', 'government', 'policy', 'law', 'court'
         );
     }
     
@@ -106,27 +120,61 @@ class TAB_RSSFetcher {
         }
         
         $trends = array();
-        $cutoff = strtotime("-24 hours"); // 24-hour cutoff for fresh trends
         
-        // Parse RSS items
+        // Get configurable time cutoff (default 24 hours, but can be extended)
+        $cutoff_hours = intval(get_option('tab_trend_cutoff_hours', 72)); // Changed default to 72 hours
+        $cutoff = strtotime("-{$cutoff_hours} hours");
+        
+        // Parse RSS items (Google Trends format)
         if (isset($xml->channel->item)) {
             foreach ($xml->channel->item as $item) {
-                // Check if item is within last 24 hours
+                // Check if item is within the specified time cutoff
                 $pub_date = strtotime($item->pubDate);
                 
                 if ($pub_date >= $cutoff) {
-                    // Process this item (it's within last 24 hours)
+                    // Google Trends uses a custom format with ht: namespace
+                    $title = (string) $item->title;
+                    $description = (string) $item->description;
+                    
+                    // Extract traffic data from ht:approx_traffic if available
+                    $traffic = '';
+                    if (isset($item->children('https://trends.google.com/trending/rss')->approx_traffic)) {
+                        $traffic = (string) $item->children('https://trends.google.com/trending/rss')->approx_traffic;
+                    }
+                    
+                    // Build description from news items if description is empty
+                    if (empty($description)) {
+                        $news_descriptions = array();
+                        $ht_namespace = $item->children('https://trends.google.com/trending/rss');
+                        
+                        if (isset($ht_namespace->news_item)) {
+                            foreach ($ht_namespace->news_item as $news_item) {
+                                $news_title = (string) $news_item->news_item_title;
+                                if (!empty($news_title)) {
+                                    $news_descriptions[] = $news_title;
+                                }
+                            }
+                        }
+                        
+                        if (!empty($news_descriptions)) {
+                            $description = implode('. ', array_slice($news_descriptions, 0, 3));
+                        } else {
+                            $description = 'Trending topic: ' . $title;
+                        }
+                    }
+                    
                     $trend = array(
-                        'title' => (string) $item->title,
-                        'description' => (string) $item->description,
+                        'title' => $title,
+                        'description' => $description,
                         'link' => (string) $item->link,
                         'pub_date' => (string) $item->pubDate,
-                        'guid' => (string) $item->guid,
-                        'pub_timestamp' => $pub_date // Store timestamp for reference
+                        'guid' => isset($item->guid) ? (string) $item->guid : md5($title . $pub_date),
+                        'pub_timestamp' => $pub_date,
+                        'traffic' => $traffic
                     );
                     
                     // Extract additional data from description if available
-                    $description_data = $this->extract_description_data((string) $item->description);
+                    $description_data = $this->extract_description_data($description);
                     $trend = array_merge($trend, $description_data);
                     
                     $trends[] = $trend;
@@ -256,7 +304,12 @@ class TAB_RSSFetcher {
         $timestamp = strtotime($date_string);
         
         if ($timestamp === false) {
-            return current_time('mysql');
+            // Use current_time if available, otherwise use regular date
+            if (function_exists('current_time')) {
+                return current_time('mysql');
+            } else {
+                return date('Y-m-d H:i:s');
+            }
         }
         
         return date('Y-m-d H:i:s', $timestamp);
@@ -271,7 +324,18 @@ class TAB_RSSFetcher {
     private function is_recently_processed($title) {
         global $wpdb;
         
+        // If $wpdb is not available (e.g., running outside WordPress), skip check
+        if (!$wpdb || !is_object($wpdb)) {
+            return false;
+        }
+        
         $table_name = $wpdb->prefix . 'trendie_logs';
+        
+        // Check if table exists
+        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+        if (!$table_exists) {
+            return false;
+        }
         
         $count = $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM $table_name 
@@ -296,7 +360,7 @@ class TAB_RSSFetcher {
             'search_volume' => '10,000',
             'related_topics' => array('technology', 'innovation', 'trends'),
             'source_url' => 'https://example.com',
-            'published_date' => current_time('mysql'),
+            'published_date' => function_exists('current_time') ? current_time('mysql') : date('Y-m-d H:i:s'),
             'raw_data' => array()
         );
     }
